@@ -41,7 +41,28 @@ DWORD WINAPI MinMaxThread(LPVOID lpParam) {
 
     cout << "Поток Min_Max завершил работу. Min: " << minResult << ", Max: " << maxResult << endl;
     return 0;
+
+
 }
+
+
+double averageResult = 0.0;
+
+// Поток 2: Поиск среднего значения
+// Требование: спать 12 мс после каждой операции суммирования
+DWORD WINAPI AverageThread(LPVOID lpParam) {
+    double sum = 0;
+
+    for (int i = 0; i < arraySize; i++) {
+        sum += arrayPtr[i];
+        Sleep(12); 
+    }
+
+    averageResult = sum / arraySize;
+    cout << "Поток Average завершил работу. Среднее: " << averageResult << endl;
+    return 0;
+}
+
 int main() {
    
     setlocale(LC_ALL, "Russian");
