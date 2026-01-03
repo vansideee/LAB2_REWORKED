@@ -64,28 +64,52 @@ DWORD WINAPI AverageThread(LPVOID lpParam) {
 }
 
 int main() {
-   
     setlocale(LC_ALL, "Russian");
 
-    // 1. Ввод массива с консоли
+    // 1. Ввод данных
     cout << "Введите размер массива: ";
     cin >> arraySize;
+    if (arraySize <= 0) { cout << "Неверный размер"; return 0; }
 
-    if (arraySize <= 0) {
-        cout << "Ошибка: размер массива должен быть больше 0.\n";
-        return 1; // Завершаем с ошибкой
-    }
+    arrayPtr = new int[arraySize];
+    cout << "Введите " << arraySize << " чисел: ";
+    for (int i = 0; i < arraySize; i++) cin >> arrayPtr[i];
 
-    arrayPtr = new int[arraySize]; // Выделение памяти
-    cout << "Введите " << arraySize << " целых чисел через пробел:\n";
-    for (int i = 0; i < arraySize; i++) {
-        cin >> arrayPtr[i];
-    }
-
-    cout << "\n[Debug]: Массив успешно создан.\n";
+    // 2. Создание потоков
 
     
+    HANDLE hMinMax = CreateThread(NULL, 0, MinMaxThread, NULL, 0, NULL);
+    HANDLE hAverage = CreateThread(NULL, 0, AverageThread, NULL, 0, NULL);
 
-    delete[] arrayPtr; 
+    if (hMinMax == NULL || hAverage == NULL) {
+        cout << "Ошибка при создании потоков!\n";
+        return 1;
+    }
+
+    // 3. Синхронизация
+    // WaitForSingleObject замораживает main, пока поток не подаст сигнал о завершении
+    WaitForSingleObject(hMinMax, INFINITE);
+    WaitForSingleObject(hAverage, INFINITE);
+
+    // Закрываем дескрипторы (освобождаем ресурсы системы)
+    CloseHandle(hMinMax);
+    CloseHandle(hAverage);
+
+    // 4. Модификация массива 
+    int replacementValue = (int)averageResult;
+
+    arrayPtr[minIndex] = replacementValue;
+    arrayPtr[maxIndex] = replacementValue;
+
+    // 5. Вывод итогового массива
+    cout << "\nРезультаты обработки:\n";
+    cout << "Минимум и максимум заменены на: " << replacementValue << endl;
+    cout << "Итоговый массив: ";
+    for (int i = 0; i < arraySize; i++) {
+        cout << arrayPtr[i] << " ";
+    }
+    cout << endl;
+
+    delete[] arrayPtr;
     return 0;
 }
