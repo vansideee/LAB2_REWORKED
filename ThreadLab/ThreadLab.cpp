@@ -7,6 +7,41 @@ using namespace std;
 int* arrayPtr = nullptr;
 int arraySize = 0;
 
+
+int minResult = 0;
+int maxResult = 0;
+
+int minIndex = 0;
+int maxIndex = 0;
+
+// Поток 1: Поиск минимума и максимума
+// Требование: спать 7 мс после каждого сравнения
+DWORD WINAPI MinMaxThread(LPVOID lpParam) {
+    
+    minResult = arrayPtr[0];
+    maxResult = arrayPtr[0];
+    minIndex = 0;
+    maxIndex = 0;
+
+    for (int i = 1; i < arraySize; i++) {
+        // Поиск максимума
+        if (arrayPtr[i] > maxResult) {
+            maxResult = arrayPtr[i];
+            maxIndex = i;
+        }
+        Sleep(7);
+
+        // Поиск минимума
+        if (arrayPtr[i] < minResult) {
+            minResult = arrayPtr[i];
+            minIndex = i;
+        }
+        Sleep(7); 
+    }
+
+    cout << "Поток Min_Max завершил работу. Min: " << minResult << ", Max: " << maxResult << endl;
+    return 0;
+}
 int main() {
    
     setlocale(LC_ALL, "Russian");
@@ -28,8 +63,8 @@ int main() {
 
     cout << "\n[Debug]: Массив успешно создан.\n";
 
-    // Здесь позже будет создание потоков
+    
 
-    delete[] arrayPtr; // Освобождение памяти
+    delete[] arrayPtr; 
     return 0;
 }
